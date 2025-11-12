@@ -46,7 +46,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     defaults:
       run:
-        working-directory: 'accounts/validation/vpc/'
+        working-directory: ${{ github.event.inputs.environment_name == 'validation' && 'accounts/validation/vpc/' || github.event.inputs.environment_name == 'network' && 'accounts/network/vpc/' || github.event.inputs.environment_name == 'dev' && 'accounts/data_dev/vpc/' || github.event.inputs.environment_name == 'prod' && 'accounts/data_prod/vpc/' || 'accounts/validation/vpc/' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
