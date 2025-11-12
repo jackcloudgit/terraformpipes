@@ -51,6 +51,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Print ACCOUNT_ID_lab environment variable
+        run: echo "Account ID for lab is: ${{ env.ACCOUNT_ID_lab }}"
+      
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
