@@ -8,5 +8,6 @@ module "ipam" {
     test = "20.2.0.0/16"
   }
   vpc_disallowed_cidrs = {}
-  vpc_account_ids = {}
+  vpc_account_ids = {}    
+  
 }
