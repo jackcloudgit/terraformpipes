@@ -24,6 +24,14 @@ jobs:
       environment_name: ${{ steps.set-env.outputs.env_name }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-tags: true
+          
+      - name: Fetch all branches
+        run: git fetch --all
+
       - id: set-env
         run: |
           files=$(git diff --name-only origin/main)
