@@ -35,7 +35,8 @@ jobs:
     environment: ${{ needs.detect_env.outputs.environment_name }}
     defaults:
       run:
-        working-directory: ${{ "accounts/" + needs.detect_env.outputs.environment_name + "/vpc" }}
+        working-directory: ${{ format('accounts/{0}/vpc', needs.detect_env.outputs.environment_name) }}
+
     steps:
       - uses: actions/checkout@v4
         with:
