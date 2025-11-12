@@ -1,0 +1,84 @@
+name: Terraform Test
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'validation/'
+      - 'Environments/'
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment_name:
+        description: "Environment to deploy"
+        required: true
+        type: choice
+        options:
+          - validation
+          - prod
+          - dev
+          - test
+      branch_name:
+        description: "Branch to run against"
+        required: true
+      action_type:
+        description: "Terraform action (plan, apply, destroy)"
+        required: true
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+env:
+  AWS_REGION: ap-south-1
+
+jobs:
+  terraform:
+    name: Terraform ${{ github.event.inputs.action_type }} (${{ github.event.inputs.environment_name }})
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    defaults:
+      run:
+        working-directory: ${{ github.event.inputs.environment_name == 'validation' && 'accounts/validation/vpc/' || github.event.inputs.environment_name == 'test' && 'accounts/test/vpc/' || github.event.inputs.environment_name == 'dev' && 'accounts/dev/vpc/' || github.event.inputs.environment_name == 'prod' && 'accounts/prod/vpc/' || 'accounts/validation/vpc/' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch_name }}
+     
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.12.2
+
+      - name: Terraform Init
+        run: |
+          terraform init
+
+      - name: Terraform Plan
+        if: github.event.inputs.action_type == 'plan'
+        run: terraform plan -out=${{ github.event.inputs.environment_name }}-plan.tfplan
+
+      - name: Terraform Apply
+        if: github.event.inputs.action_type == 'apply'
+        run: terraform apply -auto-approve ${{ github.event.inputs.environment_name }}-plan.tfplan
+
+      - name: Terraform Destroy
+        if: github.event.inputs.action_type == 'destroy'
+        run: terraform destroy -auto-approve
