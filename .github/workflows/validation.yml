@@ -1,15 +1,6 @@
-name: Terraform Test
+name: Terraform Manual
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize]
-    paths:
-      - 'validation/**'
-      - 'Environments/**'
-      - 'accounts/**'
-  # push:
-  #   branches:
-  #     - main
   workflow_dispatch:
     inputs:
       environment_name:
@@ -36,51 +27,22 @@ on:
 permissions:
   id-token: write
   contents: read
-  pull-requests: write
 
 env:
   AWS_REGION: ap-south-1
 
 jobs:
-  detect_env:
-    runs-on: ubuntu-latest
-    outputs:
-      environment_name: ${{ steps.set-env.outputs.env-name }}
-    if: github.event_name == 'pull_request'
-    steps:
-      - uses: actions/checkout@v4
-      - id: set-env
-        run: |
-          # Get the list of changed files from the PR against main
-          files=$(git diff --name-only origin/main)
-          echo "Changed files: $files"
-
-          # Default environment
-          env_name="validation"
-
-          # Parse to find any match for accounts/<env>/vpc/
-          for file in $files; do
-            if [[ "$file" =~ ^accounts/([^/]+)/vpc/ ]]; then
-              env_name="${BASH_REMATCH[1]}"
-              break
-            fi
-          done
-
-          echo "Detected environment: $env_name"
-          echo "env-name=$env_name" >> $GITHUB_OUTPUT
-
-  terraform:
-    needs: [detect_env]
+  terraform_manual:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ format('accounts/{0}/vpc', needs.detect_env.outputs.environment_name) }}
+        working-directory: ${{ format('accounts/{0}/vpc', github.event.inputs.environment_name) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.event_name == 'workflow_dispatch' && github.event.inputs.branch_name }}
+          ref: ${{ github.event.inputs.branch_name }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -98,13 +60,13 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
-        if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.action_type == 'plan')
-        run: terraform plan -out=${{ needs.detect_env.outputs.environment_name }}-plan.tfplan
+        if: ${{ github.event.inputs.action_type == 'plan' }}
+        run: terraform plan -out=${{ github.event.inputs.environment_name }}-plan.tfplan
 
       - name: Terraform Apply
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action_type == 'apply'
-        run: terraform apply -auto-approve ${{ needs.detect_env.outputs.environment_name }}-plan.tfplan
+        if: ${{ github.event.inputs.action_type == 'apply' }}
+        run: terraform apply -auto-approve ${{ github.event.inputs.environment_name }}-plan.tfplan
 
       - name: Terraform Destroy
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action_type == 'destroy'
+        if: ${{ github.event.inputs.action_type == 'destroy' }}
         run: terraform destroy -auto-approve

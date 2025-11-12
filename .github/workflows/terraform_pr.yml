@@ -1,0 +1,68 @@
+name: Terraform PR Plan
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - main
+    paths:
+      - 'accounts/**'
+      - 'Environments/**'
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+env:
+  AWS_REGION: ap-south-1
+
+jobs:
+  detect_env:
+    runs-on: ubuntu-latest
+    outputs:
+      environment_name: ${{ steps.set-env.outputs.env_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-env
+        run: |
+          files=$(git diff --name-only origin/main)
+          env_name="validation"
+          for file in $files; do
+            if [[ "$file" =~ ^accounts/([^/]+)/vpc/ ]]; then
+              env_name="${BASH_REMATCH[1]}"
+              break
+            fi
+          done
+          echo "env_name=$env_name" >> $GITHUB_OUTPUT
+
+  terraform_pr:
+    needs: detect_env
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ format('accounts/{0}/vpc', needs.detect_env.outputs.environment_name) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.12.2
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -out=${{ needs.detect_env.outputs.environment_name }}-plan.tfplan
