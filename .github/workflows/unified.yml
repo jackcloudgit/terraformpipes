@@ -56,13 +56,7 @@ jobs:
     defaults:
       run:
         working-directory: |
-          ${{ github.event.inputs.environment_name == 'bootstrap' && 'accounts/bootstrap/vpc' ||
-              github.event.inputs.environment_name == 'network' && 'accounts/network/vpc' ||
-              github.event.inputs.environment_name == 'dev' && 'accounts/data_dev/vpc' ||
-              github.event.inputs.environment_name == 'lab' && 'accounts/data_lab/vpc' ||
-              github.event.inputs.environment_name == 'prod' && 'accounts/data_prod/vpc' ||
-              github.event.inputs.environment_name == 'test' && 'accounts/data_test/vpc' ||
-              'accounts/bootstrap/vpc' }}
+          ${{ github.event.inputs.environment_name == 'bootstrap' && 'accounts/bootstrap/vpc' || github.event.inputs.environment_name == 'network' && 'accounts/network/vpc' || github.event.inputs.environment_name == 'dev' && 'accounts/data_dev/vpc' ||               github.event.inputs.environment_name == 'lab' && 'accounts/data_lab/vpc' || github.event.inputs.environment_name == 'prod' && 'accounts/data_prod/vpc' || github.event.inputs.environment_name == 'test' && 'accounts/data_test/vpc' || 'accounts/bootstrap/vpc' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
