@@ -7,9 +7,9 @@ on:
       - 'validation/**'
       - 'Environments/**'
       - 'accounts/**'
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
   workflow_dispatch:
     inputs:
       environment_name:
