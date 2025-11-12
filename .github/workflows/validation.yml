@@ -34,10 +34,14 @@ env:
 jobs:
   terraform_manual:
     runs-on: ubuntu-latest
+    environment: Prod_Apply
     defaults:
       run:
         working-directory: ${{ format('accounts/{0}/vpc', github.event.inputs.environment_name) }}
     steps:
+      - name: "Say Hello Mona it's Monday"
+        run: echo "$ACCOUNT_ID_lab"        
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
