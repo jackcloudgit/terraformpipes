@@ -1,0 +1,101 @@
+name: Terraform Unified Pipeline
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - 'bootstrap/'
+      - 'Environments/'
+    paths-ignore:
+      - 'docs/**'
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment_name:
+        description: "Environment to deploy/destroy (lab, prod, stage, dev, bootstrap, network, test)"
+        required: true
+        type: choice
+        options:
+          - bootstrap
+          - network
+          - lab
+          - prod
+          - stage
+          - dev
+          - test
+      branch_name:
+        description: "Branch to run against"
+        required: true
+      action_type:
+        description: "Terraform action (plan, apply, destroy)"
+        required: true
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+env:
+  AWS_REGION: ca-central-1
+  ACCOUNT_ID_lab: 337909748122
+  ACCOUNT_ID_network: 585768183870
+  ACCOUNT_ID_dev: 111111111111
+  ACCOUNT_ID_prod: 222222222222
+  ACCOUNT_ID_test: 333333333333
+
+jobs:
+  terraform:
+    name: Terraform ${{ github.event.inputs.action_type }} (${{ github.event.inputs.environment_name }})
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    defaults:
+      run:
+        working-directory: |
+          ${{ github.event.inputs.environment_name == 'bootstrap' && 'accounts/bootstrap/vpc' ||
+              github.event.inputs.environment_name == 'network' && 'accounts/network/vpc' ||
+              github.event.inputs.environment_name == 'dev' && 'accounts/data_dev/vpc' ||
+              github.event.inputs.environment_name == 'lab' && 'accounts/data_lab/vpc' ||
+              github.event.inputs.environment_name == 'prod' && 'accounts/data_prod/vpc' ||
+              github.event.inputs.environment_name == 'test' && 'accounts/data_test/vpc' ||
+              'accounts/bootstrap/vpc' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch_name }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ github.event.inputs.environment_name == 'shared' && env.ACCOUNT_ID_shared || env.ACCOUNT_ID_network }}:role/LZNetworking_terraform-assume-role
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: github-actions-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.12.2
+
+      - name: Terraform Init
+        run: |
+          terraform init
+
+      - name: Terraform Plan
+        if: github.event.inputs.action_type == 'plan'
+        run: terraform plan -out=${{ github.event.inputs.environment_name }}-plan.tfplan
+
+      - name: Terraform Apply
+        if: github.event.inputs.action_type == 'apply'
+        run: terraform apply -auto-approve ${{ github.event.inputs.environment_name }}-plan.tfplan
+
+      - name: Terraform Destroy
+        if: github.event.inputs.action_type == 'destroy'
+        run: terraform destroy -auto-approve
