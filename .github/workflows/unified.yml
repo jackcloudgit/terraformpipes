@@ -6,8 +6,6 @@ on:
     paths:
       - 'bootstrap/'
       - 'Environments/'
-    paths-ignore:
-      - 'docs/**'
   push:
     branches:
       - main
