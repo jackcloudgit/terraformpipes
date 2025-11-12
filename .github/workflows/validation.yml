@@ -38,6 +38,9 @@ jobs:
       run:
         working-directory: ${{ format('accounts/{0}/vpc', github.event.inputs.environment_name) }}
     steps:
+      - name: "Say Hello Mona it's Monday"
+        run: echo "$ACCOUNT_ID_lab"        
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -50,6 +53,8 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
+    
       
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
