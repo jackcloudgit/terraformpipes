@@ -34,7 +34,6 @@ env:
 jobs:
   terraform_plan:
     runs-on: ubuntu-latest
-    environment: Prod_Apply
     defaults:
       run:
         working-directory: ${{ format('accounts/{0}/vpc', github.event.inputs.environment_name) }}
