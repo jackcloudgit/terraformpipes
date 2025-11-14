@@ -1,5 +1,4 @@
 name: Terraform Manual
-
 on:
   workflow_dispatch:
     inputs:
@@ -75,17 +74,8 @@ jobs:
           name: tfplan-${{ github.run_id }}
           path: ${{ github.workspace }}/${{ format('accounts/{0}/vpc', github.event.inputs.environment_name) }}/${{ github.event.inputs.environment_name }}-plan.tfplan
           retention-days: 1
-        # Set an output so downstream jobs know a plan exists
         env:
           PLAN_EXISTS: true
-
-      # - name: Terraform Apply
-      #   if: ${{ github.event.inputs.action_type == 'apply' }}
-      #   run: terraform apply -auto-approve ${{ github.event.inputs.environment_name }}-plan.tfplan
-
-      # - name: Terraform Destroy
-      #   if: ${{ github.event.inputs.action_type == 'destroy' }}
-      #   run: terraform destroy -auto-approve
 
   approval:
     if: ${{ github.event.inputs.action_type == 'apply' || github.event.inputs.action_type == 'destroy' }}
@@ -96,10 +86,8 @@ jobs:
       - name: Approval placeholder
         run: echo "Waiting for manual approval on environment 'Prod_Apply'..."
   
-  # -------------------------------------------------
-  # 3. Apply or Destroy (runs after approval)
-  # -------------------------------------------------
-  execute:
+  # Apply or Destroy (runs after approval)
+  terraform_execute:
     if: ${{ github.event.inputs.action_type == 'apply' || github.event.inputs.action_type == 'destroy' }}
     runs-on: ubuntu-latest
     needs: [terraform_plan, approval]
