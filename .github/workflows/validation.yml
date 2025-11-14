@@ -82,20 +82,24 @@ jobs:
           name: tfplan-${{ github.run_id }}
           path: ${{ github.workspace }}/${{ format('accounts/{0}/vpc', github.event.inputs.environment_name) }}/${{ github.event.inputs.environment_name }}-plan.tfplan
           retention-days: 1
-
-      - name: Debug - Print ACCOUNT_ID_LAB
-        env:
-          ACCOUNT_ID: ${{ vars.ACCOUNT_ID_LAB }}
+      - name: Print ACCOUNT_ID_LAB
         run: |
-          echo "=== ACCOUNT_ID_LAB ==="
-          echo "Raw value: '${{ vars.ACCOUNT_ID_LAB }}'"
-          echo "Env value: '$ACCOUNT_ID'"
-          if [ -z "$ACCOUNT_ID" ]; then
-            echo "WARNING: ACCOUNT_ID_LAB is not set!"
-          else
-            echo "ACCOUNT_ID_LAB = $ACCOUNT_ID"
-          fi
-          echo "ACCOUNT_ID_LAB=$ACCOUNT_ID" >> $GITHUB_ENV
+          echo "ACCOUNT_ID_LAB = $ACCOUNT_ID_LAB"
+          echo "Full value: '${{ vars.ACCOUNT_ID_LAB }}'"
+      
+      # - name: Debug – Print ACCOUNT_ID_LAB
+      #   env:
+      #     ACCOUNT_ID: ${{ vars.ACCOUNT_ID_LAB }}
+      #   run: |
+      #     echo "=== ACCOUNT_ID_LAB ==="
+      #     echo "Raw value: '${{ vars.ACCOUNT_ID_LAB }}'"
+      #     echo "Env value: '$ACCOUNT_ID'"
+      #     if [ -z "$ACCOUNT_ID" ]; then
+      #       echo "WARNING: ACCOUNT_ID_LAB is not set!"
+      #     else
+      #       echo "ACCOUNT_ID_LAB = $ACCOUNT_ID"
+      #     fi
+      #     echo "ACCOUNT_ID_LAB=$ACCOUNT_ID" >> $GITHUB_ENV
 
   approval:
     if: ${{ github.event.inputs.action_type == 'apply' || github.event.inputs.action_type == 'destroy' }}
