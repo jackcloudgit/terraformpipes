@@ -82,7 +82,10 @@ jobs:
           name: tfplan-${{ github.run_id }}
           path: ${{ github.workspace }}/${{ format('accounts/{0}/vpc', github.event.inputs.environment_name) }}/${{ github.event.inputs.environment_name }}-plan.tfplan
           retention-days: 1
-
+      - name: Print ACCOUNT_ID_LAB
+        run: |
+          echo "ACCOUNT_ID_LAB = $ACCOUNT_ID_LAB"
+          echo "Full value: ${ACCOUNT_ID_LAB}"
   approval:
     if: ${{ github.event.inputs.action_type == 'apply' || github.event.inputs.action_type == 'destroy' }}
     runs-on: ubuntu-latest
