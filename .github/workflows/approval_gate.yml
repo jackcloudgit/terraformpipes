@@ -24,11 +24,11 @@ on:
           - apply
           - destroy
 
-permissions:
-  id-token: write
-  contents: read
-  # Needed for uploading/downloading artifacts
-  actions: write
+# permissions:
+#   id-token: write
+#   contents: read
+#   # Needed for uploading/downloading artifacts
+#   actions: write
 
 env:
   AWS_REGION: ap-south-1

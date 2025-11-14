@@ -71,3 +71,11 @@ jobs:
       - name: Terraform Destroy
         if: ${{ github.event.inputs.action_type == 'destroy' }}
         run: terraform destroy -auto-approve
+  approval:
+    if: ${{ github.event.inputs.action_type == 'apply' || github.event.inputs.action_type == 'destroy' }}
+    runs-on: ubuntu-latest
+    needs: plan
+    environment: Prod_Apply
+    steps:
+      - name: Approval placeholder
+        run: echo "Waiting for manual approval on environment 'Prod_Apply'..."
