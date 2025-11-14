@@ -84,7 +84,7 @@ jobs:
           retention-days: 1
       - name: Print ACCOUNT_ID_LAB
         run: |
-          echo "ACCOUNT_ID_LAB = $ACCOUNT_ID_LAB"
+          echo "ACCOUNT_ID_LAB = '${{ vars.ACCOUNT_ID_LAB }}'"
           echo "Full value: '${{ vars.ACCOUNT_ID_LAB }}'"
       
       # - name: Debug – Print ACCOUNT_ID_LAB
