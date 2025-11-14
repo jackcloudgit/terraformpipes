@@ -61,9 +61,11 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
+        id: tf_plan
         if: ${{ github.event.inputs.action_type == 'plan' }}
-        run: terraform plan -out=${{ github.event.inputs.environment_name }}-plan.tfplan -detailed-exitcode
-        echo "plan_exit=$?" >> $GITHUB_OUTPUT
+        run: |
+          terraform plan -out=${{ github.event.inputs.environment_name }}-plan.tfplan -detailed-exitcode
+          echo "plan_exit=$?" >> $GITHUB_OUTPUT
       
       # Upload the plan file **only if it was created**
       - name: Upload Plan Artifact
