@@ -92,4 +92,4 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
-        run: terraform plan -out=${{ needs.detect_env.outputs.environment_name }}-plan.tfplan
+        run: terraform plan -out=vpc-plan.tfplan
