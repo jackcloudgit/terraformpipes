@@ -61,6 +61,7 @@ jobs:
             fi
           done
           echo "env_name=$env_name" >> $GITHUB_OUTPUT
+          echo "env_name=$env_name"
 
 
   terraform_pr:
