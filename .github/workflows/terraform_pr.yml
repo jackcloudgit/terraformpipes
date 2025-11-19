@@ -43,19 +43,19 @@ jobs:
       #       fi
       #     done
       #     echo "env_name=$env_name" >> $GITHUB_OUTPUT
-      
+
       - id: set-env-new
         run: |
           files=$(git diff --name-only origin/main)
           env_name="validation"
           for file in $files; do
-            # Match account/dev/vpc, account/test/vpc, account/prd/vpc
-            if [[ "$file" =~ ^account/(dev|test|prd)/vpc/ ]]; then
+            # Match accounts/dev/vpc, accounts/test/vpc, accounts/prd/vpc
+            if [[ "$file" =~ ^accounts/(dev|test|prd|validation)/vpc/ ]]; then
               env_name="${BASH_REMATCH[1]}"
               break
             fi
-            # Match account/network/*/vpc (e.g., resolver, ingress, egress, inspection)
-            if [[ "$file" =~ ^account/network/([^/]+)/vpc/ ]]; then
+            # Match accounts/network/*/vpc (e.g., resolver, ingress, egress, inspection, eggress)
+            if [[ "$file" =~ ^accounts/network/([^/]+)/vpc/ ]]; then
               env_name="network-${BASH_REMATCH[1]}"
               break
             fi
@@ -63,13 +63,13 @@ jobs:
           echo "env_name=$env_name" >> $GITHUB_OUTPUT
           echo "env_name=$env_name"
 
-
   terraform_pr:
     needs: detect_env
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ format('accounts/{0}/vpc', needs.detect_env.outputs.environment_name) }}
+        working-directory: ${{ startsWith(needs.detect_env.outputs.environment_name, 'network-') && format('accounts/network/{0}/vpc', needs.detect_env.outputs.environment_name && replace(needs.detect_env.outputs.environment_name, 'network-', '') ) || format('accounts/{0}/vpc', needs.detect_env.outputs.environment_name) }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
