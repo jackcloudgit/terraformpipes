@@ -1,5 +1,5 @@
 module "ipam" {
-  source = "../../module/ipam_lab/"
+  source = "../../../module/ipam_lab/"
   region = "ap-south-1"
   supernet_cidr = "24.0.0.0/8"
   regional_cidr = "24.0.0.0/12"
