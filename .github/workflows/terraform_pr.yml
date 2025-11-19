@@ -32,17 +32,36 @@ jobs:
       - name: Fetch all branches
         run: git fetch --all
 
-      - id: set-env
+      # - id: set-env
+      #   run: |
+      #     files=$(git diff --name-only origin/main)
+      #     env_name="validation"
+      #     for file in $files; do
+      #       if [[ "$file" =~ ^accounts/([^/]+)/vpc/ ]]; then
+      #         env_name="${BASH_REMATCH[1]}"
+      #         break
+      #       fi
+      #     done
+      #     echo "env_name=$env_name" >> $GITHUB_OUTPUT
+      
+      - id: set-env-new
         run: |
           files=$(git diff --name-only origin/main)
           env_name="validation"
           for file in $files; do
-            if [[ "$file" =~ ^accounts/([^/]+)/vpc/ ]]; then
+            # Match account/dev/vpc, account/test/vpc, account/prd/vpc
+            if [[ "$file" =~ ^account/(dev|test|prd)/vpc/ ]]; then
               env_name="${BASH_REMATCH[1]}"
+              break
+            fi
+            # Match account/network/*/vpc (e.g., resolver, ingress, egress, inspection)
+            if [[ "$file" =~ ^account/network/([^/]+)/vpc/ ]]; then
+              env_name="network-${BASH_REMATCH[1]}"
               break
             fi
           done
           echo "env_name=$env_name" >> $GITHUB_OUTPUT
+
 
   terraform_pr:
     needs: detect_env
