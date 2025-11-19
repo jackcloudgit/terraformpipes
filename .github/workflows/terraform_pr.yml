@@ -47,28 +47,28 @@ jobs:
       - id: set-env-new
         run: |
           files=$(git diff --name-only origin/main)
-          env_name="validation"
+          working_dir="accounts/validation/vpc"  # Default path
           for file in $files; do
-            # Match accounts/dev/vpc, accounts/test/vpc, accounts/prd/vpc
             if [[ "$file" =~ ^accounts/(dev|test|prd|validation)/vpc/ ]]; then
-              env_name="${BASH_REMATCH[1]}"
+              env="${BASH_REMATCH[1]}"
+              working_dir="accounts/${env}/vpc"
               break
             fi
-            # Match accounts/network/*/vpc (e.g., resolver, ingress, egress, inspection, eggress)
             if [[ "$file" =~ ^accounts/network/([^/]+)/vpc/ ]]; then
-              env_name="network-${BASH_REMATCH[1]}"
+              subnet="${BASH_REMATCH[1]}"
+              working_dir="accounts/network/${subnet}/vpc"
               break
             fi
           done
-          echo "env_name=$env_name" >> $GITHUB_OUTPUT
-          echo "env_name=$env_name"
+          echo "working_dir=$working_dir" >> $GITHUB_OUTPUT
+          echo "working_dir=$working_dir"
 
   terraform_pr:
     needs: detect_env
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ startsWith(needs.detect_env.outputs.environment_name, 'network-') && format('accounts/network/{0}/vpc', needs.detect_env.outputs.environment_name && replace(needs.detect_env.outputs.environment_name, 'network-', '') ) || format('accounts/{0}/vpc', needs.detect_env.outputs.environment_name) }}
+        working-directory: ${{ needs.detect_env.outputs.working_dir }}
 
     steps:
       - name: Checkout
