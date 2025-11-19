@@ -87,6 +87,11 @@ jobs:
           echo "ACCOUNT_ID_LAB = '${{ vars.ACCOUNT_ID_LAB }}'"
           echo "Full value: '${{ vars.ACCOUNT_ID_LAB }}'"
       
+      - name: Print role-to-assume
+        run: |
+          ROLE_TO_ASSUME="arn:aws:iam::${{ github.event.inputs.environment_name == 'validation' && vars.ACCOUNT_ID_LAB || vars.ACCOUNT_ID_LAB1 }}:role/anetworking-terraform-assume-role"
+          echo "role-to-assume: $ROLE_TO_ASSUME"
+      
       # - name: Debug – Print ACCOUNT_ID_LAB
       #   env:
       #     ACCOUNT_ID: ${{ vars.ACCOUNT_ID_LAB }}
