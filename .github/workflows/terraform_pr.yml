@@ -32,24 +32,61 @@ jobs:
       - name: Fetch all branches
         run: git fetch --all
 
+      # - id: set-env
+      #   run: |
+      #     files=$(git diff --name-only origin/main)
+      #     env_name="validation"
+      #     for file in $files; do
+      #       if [[ "$file" =~ ^accounts/([^/]+)/vpc/ ]]; then
+      #         env_name="${BASH_REMATCH[1]}"
+      #         break
+      #       fi
+      #     done
+      #     echo "env_name=$env_name" >> $GITHUB_OUTPUT
+
+      # - id: set-env1
+      #   run: |
+      #     files=$(git diff --name-only origin/main)
+      #     env_name=""
+      #     for file in $files; do
+      #       if [[ "$file" =~ ^accounts/(data_dev|data_test|data_prd)/vpc/ ]]; then
+      #         env="${BASH_REMATCH[1]}"
+      #         env_name="accounts/${env}/vpc"
+      #         break
+      #       fi
+      #       if [[ "$file" =~ ^accounts/network/([^/]+)/vpc/ ]]; then
+      #         network_role="${BASH_REMATCH[1]}"
+      #         env_name="accounts/network/${network_role}/vpc"
+      #         break
+      #       fi
+      #     done
+      #     echo "env_name=$env_name" >> $GITHUB_OUTPUT
+      #     echo "env_name=$env_name"
+
       - id: set-env
         run: |
           files=$(git diff --name-only origin/main)
-          env_name="validation"
+          env_name=""
           for file in $files; do
-            if [[ "$file" =~ ^accounts/([^/]+)/vpc/ ]]; then
-              env_name="${BASH_REMATCH[1]}"
+            if [[ "$file" =~ ^accounts/(data_dev|data_test|data_prod|data_lab)/vpc/ ]]; then
+              network_role="${BASH_REMATCH[1]}"
+              env_name="accounts/${network_role}/vpc"
+              break
+            fi
+            if [[ "$file" =~ ^accounts/network/([^/]+)/vpc/ ]]; then
+              network_role="${BASH_REMATCH[1]}"
+              env_name="accounts/network/${network_role}/vpc"
               break
             fi
           done
           echo "env_name=$env_name" >> $GITHUB_OUTPUT
-
+          echo "env_name=$env_name"
   terraform_pr:
     needs: detect_env
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ format('accounts/{0}/vpc', needs.detect_env.outputs.environment_name) }}
+        working-directory: ${{ needs.detect_env.outputs.environment_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -73,4 +110,4 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
-        run: terraform plan -out=${{ needs.detect_env.outputs.environment_name }}-plan.tfplan
+        run: terraform plan -out=vpc-plan.tfplan
