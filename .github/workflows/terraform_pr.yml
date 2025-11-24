@@ -47,7 +47,7 @@ jobs:
       - id: set-env
         run: |
           files=$(git diff --name-only origin/main)
-          env_name="accounts/validation/vpc"  # Default path
+          env_name=""
           for file in $files; do
             if [[ "$file" =~ ^accounts/(dev|test|prd|validation)/vpc/ ]]; then
               env="${BASH_REMATCH[1]}"
