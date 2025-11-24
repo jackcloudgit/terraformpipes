@@ -51,7 +51,7 @@ jobs:
           for file in $files; do
             if [[ "$file" =~ ^accounts/(data_dev|data_test|data_prd)/vpc/ ]]; then
               env="${BASH_REMATCH[1]}"
-              working_dir="accounts/${env}/vpc"
+              env_name="accounts/${env}/vpc"
               break
             fi
             if [[ "$file" =~ ^accounts/network/([^/]+)/vpc/ ]]; then
