@@ -155,7 +155,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tfplan-${{ github.run_id }}
-          path: ${{ github.workspace }}/${{ format('accounts/{0}/vpc', github.event.inputs.environment_name) }}
+          path: ${{ github.workspace }}/${{ format('accounts/{0}/vpc', github.event.inputs.environment_name) }}/${{ github.event.inputs.environment_name }}-plan.tfplan
 
       - name: Terraform Apply
         if: ${{ github.event.inputs.action_type == 'apply' }}
