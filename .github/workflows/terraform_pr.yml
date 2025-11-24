@@ -56,12 +56,12 @@ jobs:
             fi
             if [[ "$file" =~ ^accounts/network/([^/]+)/vpc/ ]]; then
               network_role="${BASH_REMATCH[1]}"
-              working_dir="accounts/network/${network_role}/vpc"
+              env_name="accounts/network/${network_role}/vpc"
               break
             fi
           done
-          echo "env_name=$working_dir" >> $GITHUB_OUTPUT
-          echo "env_name=$working_dir"
+          echo "env_name=$env_name" >> $GITHUB_OUTPUT
+          echo "env_name=$env_name"
 
   terraform_pr:
     needs: detect_env
