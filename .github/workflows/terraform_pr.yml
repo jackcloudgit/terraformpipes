@@ -44,14 +44,33 @@ jobs:
       #     done
       #     echo "env_name=$env_name" >> $GITHUB_OUTPUT
 
+      # - id: set-env1
+      #   run: |
+      #     files=$(git diff --name-only origin/main)
+      #     env_name=""
+      #     for file in $files; do
+      #       if [[ "$file" =~ ^accounts/(data_dev|data_test|data_prd)/vpc/ ]]; then
+      #         env="${BASH_REMATCH[1]}"
+      #         env_name="accounts/${env}/vpc"
+      #         break
+      #       fi
+      #       if [[ "$file" =~ ^accounts/network/([^/]+)/vpc/ ]]; then
+      #         network_role="${BASH_REMATCH[1]}"
+      #         env_name="accounts/network/${network_role}/vpc"
+      #         break
+      #       fi
+      #     done
+      #     echo "env_name=$env_name" >> $GITHUB_OUTPUT
+      #     echo "env_name=$env_name"
+
       - id: set-env
         run: |
           files=$(git diff --name-only origin/main)
           env_name=""
           for file in $files; do
-            if [[ "$file" =~ ^accounts/(data_dev|data_test|data_prd)/vpc/ ]]; then
-              env="${BASH_REMATCH[1]}"
-              env_name="accounts/${env}/vpc"
+            if [[ "$file" =~ ^accounts/(data_dev|data_test|data_prod|data_lab)/vpc/ ]]; then
+              network_role="${BASH_REMATCH[1]}"
+              env_name="accounts/${network_role}/vpc"
               break
             fi
             if [[ "$file" =~ ^accounts/network/([^/]+)/vpc/ ]]; then
@@ -62,7 +81,6 @@ jobs:
           done
           echo "env_name=$env_name" >> $GITHUB_OUTPUT
           echo "env_name=$env_name"
-
   terraform_pr:
     needs: detect_env
     runs-on: ubuntu-latest

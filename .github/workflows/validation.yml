@@ -157,10 +157,10 @@ jobs:
           name: tfplan-${{ github.run_id }}
           path: ${{ github.workspace }}/${{ format('accounts/{0}/vpc', github.event.inputs.environment_name) }}
                 
-      - name: Display structure of downloaded files
-        run: |
-          ls -R
-          pwd
+      # - name: Display structure of downloaded files
+      #   run: |
+      #     ls -R
+      #     pwd
 
       - name: Terraform Apply
         if: ${{ github.event.inputs.action_type == 'apply' }}
