@@ -7,10 +7,10 @@ on:
         required: true
         type: choice
         options:
-          - validation
-          - prod
-          - dev
-          - test
+          - data_validation
+          - data_prod
+          - data_dev
+          - data_test
       branch_name:
         description: "Branch to run against"
         required: true
