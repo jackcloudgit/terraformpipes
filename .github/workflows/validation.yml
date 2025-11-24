@@ -155,7 +155,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tfplan-${{ github.run_id }}
-          path: ${{ github.workspace }}/${{ format('accounts/{0}/vpc', github.event.inputs.environment_name) }}/${{ github.event.inputs.environment_name }}-plan.tfplan
+          path: ${{ github.workspace }}/${{ format('accounts/{0}/vpc', github.event.inputs.environment_name) }}
                 
       - name: Display structure of downloaded files
         run: |
@@ -166,7 +166,7 @@ jobs:
         if: ${{ github.event.inputs.action_type == 'apply' }}
         run: |
           terraform apply -auto-approve ${{ github.event.inputs.environment_name }}-plan.tfplan
-          
+                    
       - name: Terraform Destroy
         if: ${{ github.event.inputs.action_type == 'destroy' }}
         run: |
