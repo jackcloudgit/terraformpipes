@@ -156,7 +156,7 @@ jobs:
         with:
           name: tfplan-${{ github.run_id }}
           path: ${{ github.workspace }}/${{ format('accounts/{0}/vpc', github.event.inputs.environment_name) }}/${{ github.event.inputs.environment_name }}-plan.tfplan
-      
+                
       - name: Display structure of downloaded files
         run: |
           ls -R
