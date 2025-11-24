@@ -160,7 +160,6 @@ jobs:
       - name: Terraform Apply
         if: ${{ github.event.inputs.action_type == 'apply' }}
         run: |
-          terraform apply -auto-approve ${{ github.event.inputs.environment_name }}-plan.tfplan
           terraform apply -auto-approve accounts/${{ github.event.inputs.environment_name }}/vpc/${{ github.event.inputs.environment_name }}-plan.tfplan
           
       - name: Terraform Destroy
