@@ -49,14 +49,14 @@ jobs:
           files=$(git diff --name-only origin/main)
           env_name=""
           for file in $files; do
-            if [[ "$file" =~ ^accounts/(dev|test|prd|validation)/vpc/ ]]; then
+            if [[ "$file" =~ ^accounts/(data_dev|data_test|data_prd)/vpc/ ]]; then
               env="${BASH_REMATCH[1]}"
               working_dir="accounts/${env}/vpc"
               break
             fi
             if [[ "$file" =~ ^accounts/network/([^/]+)/vpc/ ]]; then
-              subnet="${BASH_REMATCH[1]}"
-              working_dir="accounts/network/${subnet}/vpc"
+              network_role="${BASH_REMATCH[1]}"
+              working_dir="accounts/network/${network_role}/vpc"
               break
             fi
           done
